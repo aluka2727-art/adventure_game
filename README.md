@@ -38,12 +38,21 @@ python archive/python-cli/main.py
 
 [Railway](https://railway.app) and similar hosts work the same way: install requirements, run gunicorn on `$PORT`.
 
+## Deploy on Vercel
+
+1. Push this repo to GitHub (or connect an existing remote).
+2. At [vercel.com/new](https://vercel.com/new), import the repository.
+3. Vercel detects **Flask** from `requirements.txt` and uses [`app.py`](app.py) as the entrypoint. Leave **Build Command** and **Start Command** empty (defaults are fine).
+4. Deploy. Static CSS is served from [`public/static/`](public/static/).
+
+Optional local check with the Vercel CLI: `vercel dev` (requires [Vercel CLI](https://vercel.com/docs/cli) 48.2.10+).
+
 ## Layout
 
 ```
 game/              # world + engine (source of truth)
 app.py             # Flask web app
 templates/         # HTML
-static/            # CSS
+public/static/     # CSS (CDN on Vercel; Flask serves locally)
 archive/python-cli/  # optional terminal entry
 ```

@@ -9,9 +9,9 @@
   --bg: #000000;
   --panel: #000000;
   --border: #333333;
-  --text: #c8c8c8;
+  --text: #ffffff;
   --muted: #666666;
-  --danger: #a05050;
+  --danger: #8d0000;
   --prompt: #f5e642;
 }
 
@@ -22,7 +22,7 @@ body {
 }
 
 body {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
   background: var(--bg);
   color: var(--text);
   font-size: 0.85rem;

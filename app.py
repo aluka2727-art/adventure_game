@@ -7,7 +7,7 @@ from flask import Flask, redirect, render_template, request, url_for
 
 from game.engine import process_turn
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public/static")
 
 
 def _append_result(log, result):
