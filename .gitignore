@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+archive/web-react/node_modules/
+archive/web-react/dist/
