@@ -10,12 +10,6 @@ from game.engine import process_turn
 app = Flask(__name__)
 
 
-def _format_inventory(items):
-    if not items:
-        return "Inventory: (empty)"
-    return "Inventory: " + ", ".join(items)
-
-
 def _append_result(log, result):
     for text in result.get("messages") or []:
         kind = "game-over" if "GAME OVER" in text else "line"
@@ -46,7 +40,6 @@ def index():
         "play.html",
         log=log,
         state=result["state"],
-        inventory=_format_inventory(result.get("inventory") or []),
         ended=result.get("ended", False),
         error=None,
     )
@@ -78,7 +71,6 @@ def play():
             "play.html",
             log=log,
             state=result["state"],
-            inventory=_format_inventory(result.get("inventory") or []),
             ended=result.get("ended", False),
             error=None,
         )
@@ -88,7 +80,6 @@ def play():
             "play.html",
             log=log,
             state=result["state"],
-            inventory=_format_inventory(result.get("inventory") or []),
             ended=result.get("ended", False),
             error=f"Something went wrong ({exc}). Started a new game.",
         )

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
@@ -16,10 +16,6 @@
     <div class="app">
       <header>
         <h1>Adventure</h1>
-        <p>
-          Work in progress — game logic runs on Python. Type answers as prompts
-          suggest (yes, left, fight).
-        </p>
       </header>
 
       {% if error %}
@@ -27,12 +23,11 @@
       {% endif %}
 
       <div class="terminal">
-        <div class="log" aria-live="polite" aria-relevant="additions">
+        <div class="log" id="game-log" aria-live="polite" aria-relevant="additions">
           {% for entry in log %}
           <div class="line {{ entry.kind }}">{{ entry.text }}</div>
           {% endfor %}
         </div>
-        <div class="inventory">{{ inventory }}</div>
         <form class="input-row" method="post" action="{{ url_for('play') }}">
           {# JSON in value="" breaks on inner quotes; use textareas instead #}
           <textarea name="state" hidden>{{ state | tojson }}</textarea>
@@ -45,7 +40,6 @@
             autocomplete="off"
             spellcheck="false"
             aria-label="Game input"
-            autofocus
           />
           <button type="submit" {% if ended %}disabled{% endif %}>Send</button>
         </form>
@@ -55,5 +49,31 @@
         <a class="button-link" href="{{ url_for('new_game') }}">New game</a>
       </div>
     </div>
+    <script>
+      (function () {
+        var log = document.getElementById("game-log");
+        if (!log) return;
+
+        function scrollLogToBottom() {
+          log.scrollTop = log.scrollHeight;
+        }
+
+        function focusInput() {
+          var input = document.querySelector('.input-row input[name="command"]');
+          if (input && !input.disabled) {
+            input.focus({ preventScroll: true });
+          }
+        }
+
+        function afterPaint() {
+          scrollLogToBottom();
+          focusInput();
+        }
+
+        afterPaint();
+        requestAnimationFrame(afterPaint);
+        window.addEventListener("load", afterPaint);
+      })();
+    </script>
   </body>
 </html>
