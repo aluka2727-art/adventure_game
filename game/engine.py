@@ -1,12 +1,13 @@
 """Turn-based game engine (web API + CLI)."""
 
+import copy
 import random
 import string
 import sys
 
 from game import world
 
-ROOM_ORDER = ["ready", "door", "dino", "ttt", "vend", "eat", "library", "boss1"]
+ROOM_ORDER = ["ready", "door", "dino", "ttt", "vend", "eat", "library", "boss1", "world2", "forest", "treehouse"]
 
 ROOM_CHEATS = {
     "~ready": "ready",
@@ -18,6 +19,9 @@ ROOM_CHEATS = {
     "~eat": "eat",
     "~library": "library",
     "~boss1": "boss1",
+    "~world2": "world2",
+    "~forest": "forest",
+    "~treehouse": "treehouse",
 }
 
 
@@ -98,6 +102,28 @@ def initial_state():
     }
 
 
+def _save_checkpoint(state):
+    state["checkpoint"] = {
+        "game": copy.deepcopy(state["game"]),
+        "room_idx": state["room_idx"],
+        "ctx": copy.deepcopy(state["ctx"]),
+    }
+
+
+def restore_checkpoint(state):
+    """Return to the world 2 entrance saved after world 1."""
+    snapshot = state.get("checkpoint")
+    if not snapshot:
+        return _response([], state, _prompt_for_state(state))
+    state["game"] = copy.deepcopy(snapshot["game"])
+    state["room_idx"] = snapshot["room_idx"]
+    state["ctx"] = copy.deepcopy(snapshot["ctx"])
+    state["ended"] = False
+    state["complete"] = False
+    state["clear_log"] = True
+    return _response([world.WORLD_2_INTRO], state, world.WORLD_2_PROMPT)
+
+
 def _room_name(state):
     return ROOM_ORDER[state["room_idx"]]
 
@@ -176,6 +202,22 @@ def _enter_room(state, messages):
         ctx["phase"] = "boss"
         ctx["boss_losses"] = 0
         return world.BOSS1_PROMPT
+    if room == "world2":
+        messages.append(world.WORLD_2_INTRO)
+        ctx["phase"] = "world_2"
+        _save_checkpoint(state)
+        state["clear_log"] = True
+        return world.WORLD_2_PROMPT
+    if room == "forest":
+        messages.append(world.FOREST_INTRO)
+        ctx["phase"] = "forest"
+        return world.FOREST_PROMPT
+    if room == "treehouse":
+        messages.append(world.TREEHOUSE_INTRO)
+        ctx["phase"] = "treehouse"
+        ctx["fairy_talks"] = 0
+        ctx["treehouse_looks"] = 0
+        return world.TREEHOUSE_PROMPT
     return None
 
 
@@ -368,9 +410,10 @@ def _handle_turn(state, answer, messages):
 
     if phase == "library":
         if answer == "search":
-            messages.append(world.LIBRARY_SEARCH_HEADER)
+            listing = [world.LIBRARY_SEARCH_HEADER]
             for number, title in enumerate(game["library_titles"], start=1):
-                messages.append(f"{number}. {title}")
+                listing.append(f"{number}. {title}")
+            messages.append("\n".join(listing))
             return world.LIBRARY_PROMPT
         if answer == "read":
             ctx["phase"] = "library_pick"
@@ -459,6 +502,97 @@ def _handle_turn(state, answer, messages):
         messages.append(world.UNRECOGNIZED)
         return world.BOSS1_FINISHED
 
+    if phase == "world_2":
+        if answer == "forest":
+            return _finish_room(state, messages)
+        if answer == "back":
+            messages.append(world.WORLD_2_BACK)
+            add_item(game, world.APPLE)
+            ctx["phase"] = "world_2_continue"
+            return world.WORLD_2_BACK_PROMPT
+        messages.append(world.UNRECOGNIZED)
+        return world.WORLD_2_PROMPT
+
+    if phase == "world_2_continue":
+        if answer == "continue":
+            return _finish_room(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.WORLD_2_BACK_PROMPT
+
+    if phase == "forest":
+        if answer == "explore":
+            if random.random() < 0.25:
+                messages.append(world.FOREST_EXPLORE_DEATH)
+                state["ended"] = True
+                return None
+            messages.append(random.choice(world.FOREST_EXPLORE))
+            return world.FOREST_PROMPT
+        if answer == "path":
+            messages.append(world.FOREST_PATH)
+            ctx["phase"] = "forest_path"
+            return world.FOREST_PATH_PROMPT
+        messages.append(world.UNRECOGNIZED)
+        return world.FOREST_PROMPT
+
+    if phase == "forest_path":
+        if answer == "continue":
+            return _continue_along_path(state, messages)
+        if answer == "enter":
+            return _finish_room(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.FOREST_PATH_PROMPT
+
+    if phase == "forest_path_onward":
+        if answer == "continue":
+            return _continue_along_path(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.FOREST_PATH_CONTINUE_PROMPT
+
+    if phase == "treehouse":
+        if answer == "talk":
+            ctx["fairy_talks"] += 1
+            talks = ctx["fairy_talks"]
+            if talks == 1:
+                messages.append(world.TREEHOUSE_TALK)
+                return world.TREEHOUSE_PROMPT
+            if talks == 2:
+                messages.append(world.TREEHOUSE_TALK_AGAIN)
+                return world.TREEHOUSE_PROMPT
+            messages.append(world.TREEHOUSE_TALK_AGAIN_AGAIN)
+            ctx["phase"] = "treehouse_problem"
+            return world.TREEHOUSE_FAIRY_PROBLEM_PROMPT
+        if answer == "examine":
+            looks = world.TREEHOUSE_EXAMINE
+            messages.append(looks[ctx["treehouse_looks"] % len(looks)])
+            ctx["treehouse_looks"] += 1
+            return world.TREEHOUSE_PROMPT
+        messages.append(world.UNRECOGNIZED)
+        return world.TREEHOUSE_PROMPT
+
+    if phase == "treehouse_problem":
+        if answer == "ask":
+            messages.append(world.TREEHOUSE_FAIRY_PROBLEM_ASK)
+            ctx["phase"] = "treehouse_help"
+            return world.TREEHOUSE_FAIRY_HELP_PROMPT
+        if answer == "leave":
+            messages.append(world.TREEHOUSE_FAIRY_PROBLEM_LEAVE)
+            state["ended"] = True
+            return None
+        messages.append(world.UNRECOGNIZED)
+        return world.TREEHOUSE_FAIRY_PROBLEM_PROMPT
+
+    if phase == "treehouse_help":
+        if answer == "help":
+            messages.append(world.TREEHOUSE_FAIRY_HELP_HELP)
+            ctx["phase"] = "treehouse_done"
+            return None
+        if answer == "leave":
+            messages.append(world.TREEHOUSE_FAIRY_HELP_LEAVE)
+            state["ended"] = True
+            return None
+        messages.append(world.UNRECOGNIZED)
+        return world.TREEHOUSE_FAIRY_HELP_PROMPT
+
     messages.append(world.UNRECOGNIZED)
     return _prompt_for_state(state)
 
@@ -484,8 +618,31 @@ def _prompt_for_state(state):
         "ttt_book": world.LIBRARY_REAL_PAGE_PROMPT,
         "boss": world.BOSS1_PROMPT,
         "boss_win": world.BOSS1_FINISHED,
+        "world_2": world.WORLD_2_PROMPT,
+        "world_2_continue": world.WORLD_2_BACK_PROMPT,
+        "forest": world.FOREST_PROMPT,
+        "forest_path": world.FOREST_PATH_PROMPT,
+        "forest_path_onward": world.FOREST_PATH_CONTINUE_PROMPT,
+        "treehouse": world.TREEHOUSE_PROMPT,
+        "treehouse_problem": world.TREEHOUSE_FAIRY_PROBLEM_PROMPT,
+        "treehouse_help": world.TREEHOUSE_FAIRY_HELP_PROMPT,
     }
     return prompts.get(phase)
+
+
+def _continue_along_path(state, messages):
+    ctx = state["ctx"]
+    if "path_limit" not in ctx:
+        ctx["path_limit"] = random.randint(3, 5)
+        ctx["path_steps"] = 0
+    if ctx["path_steps"] >= ctx["path_limit"]:
+        messages.append(world.FOREST_PATH_DEATH)
+        state["ended"] = True
+        return None
+    messages.append(random.choice(world.FOREST_PATH_CONTINUE))
+    ctx["path_steps"] += 1
+    ctx["phase"] = "forest_path_onward"
+    return world.FOREST_PATH_CONTINUE_PROMPT
 
 
 def process_turn(state, user_input):
@@ -502,6 +659,11 @@ def process_turn(state, user_input):
 
     answer = (user_input or "").strip().lower()
 
+    if answer == "~die":
+        messages.append(world.DEV_CHEAT_DEATH)
+        state["ended"] = True
+        return _response(messages, state, None)
+
     if answer in ROOM_CHEATS:
         _skip_to_room(state, ROOM_CHEATS[answer])
         prompt = _enter_room(state, messages)
@@ -516,6 +678,7 @@ def process_turn(state, user_input):
 
 def _response(messages, state, prompt):
     ended = state.get("ended", False) or state.get("complete", False)
+    clear_log = bool(state.pop("clear_log", False))
     return {
         "messages": messages,
         "prompt": prompt,
@@ -523,6 +686,7 @@ def _response(messages, state, prompt):
         "inventory": list(state["game"]["inventory"]),
         "ended": ended,
         "complete": state.get("complete", False),
+        "clear_log": clear_log,
     }
 
 

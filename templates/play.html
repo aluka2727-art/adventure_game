@@ -13,6 +13,27 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
+    {% if died %}
+    {% set death = namespace(text="") %}
+    {% for entry in log %}
+    {% if entry.kind == "game-over" %}
+    {% set death.text = entry.text %}
+    {% endif %}
+    {% endfor %}
+    <div class="death-screen">
+      <p class="death-text">{{ death.text }}</p>
+      {% if can_respawn %}
+      <form method="post" action="{{ url_for('play') }}">
+        <textarea name="state" hidden>{{ state | tojson }}</textarea>
+        <textarea name="log" hidden>{{ log | tojson }}</textarea>
+        <button type="submit" name="respawn" value="1" class="respawn-button">Respawn?</button>
+      </form>
+      {% else %}
+      <a class="button-link" href="{{ url_for('new_game') }}">New game</a>
+      {% endif %}
+    </div>
+    <div class="death-flash" aria-hidden="true"></div>
+    {% else %}
     <div class="app">
       <header>
         <h1>Adventure</h1>
@@ -64,12 +85,12 @@
       </div>
 
       <div class="actions">
-        <span class="version">Version: DEMO 1.1.0</span>
-        <a class="button-link" href="{{ url_for('new_game') }}">New game</a>
+        <span class="version">Version: DEMO 1.2.0</span>
+        <div class="action-links">
+          <a class="button-link" href="{{ url_for('new_game') }}">New game</a>
+        </div>
       </div>
     </div>
-    {% if died %}
-    <div class="death-flash" aria-hidden="true"></div>
     {% endif %}
     <script>
       (function () {

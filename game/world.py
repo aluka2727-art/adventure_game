@@ -4,6 +4,8 @@ WOODEN_SWORD = "wooden sword"
 
 UNRECOGNIZED = "Input not recognized, try again."
 
+DEV_CHEAT_DEATH = "DEV CHEAT:\n{GAME OVER}"
+
 READY_PROMPT = "Are you ready for an adventure?(yes/no)"
 READY_YES = "Let the adventure begin!\n\n"
 READY_NO = "Let me ask you again."
@@ -14,7 +16,7 @@ DOOR_RIGHT = "You open the door cautiously, revealing another room.\nIt is empty
 DOOR_MIDDLE = "You bump into the wall."
 
 DINO_INTRO = "You open the door slowly, revealing another room.\nIn the middle of the room, a red dinosaur-like creature is sound asleep.\nAt the other end of the room, there is another door."
-DINO_PROMPT = "Fight the dinosaur or sneak past it to the other door?(fight/sneak)"
+DINO_PROMPT = "Fight the creature or sneak past it to the other door?(fight/sneak)"
 
 FIGHT_START = "You see a wooden sword against the wall.\nYou run to the sword, your footsteps waking the creature.\nThere's no going back now!"
 FIGHT_PROMPT = "(attack/surrender)"
@@ -111,3 +113,46 @@ BOSS1_RESIGN_END = "You resign.\nVOICE: ...Good. Stay a loser forever...\n{GAME 
 BOSS1_CHEAT_UNKNOWN = "You shout a phrase, but it sounds made up.\nVOICE: ...Nice try. Play for real..."
 BOSS1_CHEAT_WIN = "You whisper the phrase from page ten.\nThe board flickers.\nVOICE: ...WHERE DID YOU— THAT'S NOT—...\nThe wall cracks.\nLight pours in."
 BOSS1_FINISHED = "CONGRATULATIONS!\nYOU HAVE BEATEN THE FIRST BOSS!\n(continue)"
+
+
+
+WORLD_2_INTRO = "\n\nYou step through the crack in the wall and find yourself outside.\nYour eyes adjust to the bright light and you see a large forest ahead of you."
+WORLD_2_PROMPT = "Head into the forest or go back through the crack in the wall?(forest/back)"
+WORLD_2_BACK = "You go back through the crack in the wall and find yourself back in the small dining room.\nOn the table, there is an apple glowing faintly.\nYou pick it up and put it in your pocket.\nAs you step out of the crack, you think you hear a faint voice in your head asking to be fed.\nYou continue into the forest."
+WORLD_2_BACK_PROMPT = "(continue)"
+
+FOREST_INTRO = "You head into the forest.\nThe trees are tall and the leaves are dense.\nYou can hear the sound of birds chirping in the distance."
+FOREST_PROMPT = "Explore the forest or go along the path?(explore/path)"
+FOREST_EXPLORE = [
+    "You explore the forest.\nYou see a bear in the distance.",
+    "You explore the forest.\nYou hear a noise in the distance.\nIt sounds like the voice from the void.",
+    "You explore the forest.\nYou see a large tree in the distance.",
+]
+FOREST_EXPLORE_DEATH = "You explore the forest.\nYou fall into a hole.\nYou are now stuck in the hole.\n{GAME OVER}"
+FOREST_PATH = "You go along the path.\nYou see a large tree in the distance.\nYou walk towards the tree.\nYou reach the tree and see a door in it."
+FOREST_PATH_PROMPT = "Enter the tree or continue along the path?(enter/continue)"
+FOREST_PATH_CONTINUE = [
+    "You continue along the path.\nThe forest gets darker and darker.\nYou are scared.",
+    "You continue along the path.\nYou hear a noise in the distance.\nYou are scared.",
+    "You continue along the path.\nThe path gets narrower and narrower.\nYou are scared.",
+]
+FOREST_PATH_CONTINUE_PROMPT = "Continue along the path?(continue)"
+FOREST_PATH_DEATH = "You continue along the path.\nThe forest gets darker and darker.\nThe path disappears.\nYour vision fades to black.\nYou are now part of the forest.\n{GAME OVER}"
+
+TREEHOUSE_INTRO = "You open the door and enter the tree.\nThe inside of the tree is a small room with a small, pretty fairy pacing back and forth in the middle of the room."
+TREEHOUSE_PROMPT = "Talk to the fairy or examine the room?(talk/examine)"
+TREEHOUSE_TALK = "You talk to the fairy.\nFAIRY: ...Don't talk to me..."
+TREEHOUSE_TALK_AGAIN = "You talk to the fairy again.\nFAIRY: ...Didn't I tell you not to talk to me?..."
+TREEHOUSE_TALK_AGAIN_AGAIN = "You talk to the fairy again.\nFAIRY: ...Fine. Since you won't stop trying to talk to me, I guess you could help me out..."
+TREEHOUSE_EXAMINE = [
+    "You examine the room.\nYou see a small table with mushrooms in a basket on it.\nThis is probably what the fairy eats.",
+    "You examine the room.\nAgainst the wall, there is a large bookshelf with a lot of books on it.\nThe books are all written in a language you've never seen before, but they look like fantasy romances.",
+    "You examine the room.\nIn a corner, there is a small bed with a blanket on it.\nThe blanket is made of a soft, warm fabric.",
+    "You examine the room.\nOn the wall, there is a poster depicting a large bear.\nThe text is written in a language you've never seen before.",
+]
+TREEHOUSE_FAIRY_PROBLEM_PROMPT = "Ask the fairy what's wrong??(ask/leave)"
+TREEHOUSE_FAIRY_PROBLEM_ASK = "You ask the fairy what's wrong.\nFAIRY: ...I'm stuck in this tree. Could you open the door for me?..."
+TREEHOUSE_FAIRY_PROBLEM_LEAVE = "You leave the fairy. It gets mad.\nFAIRY: ...You want to talk to me so much, but now you want to leave? Not going to happen...\nWith a snap of her fingers, she deletes you.\n{GAME OVER}"
+TREEHOUSE_FAIRY_HELP_PROMPT = "Help the fairy or leave?(help/leave)"
+TREEHOUSE_FAIRY_HELP_HELP = "You help the fairy.\nFAIRY: ...Thank you! I'm so glad you're here! To thank you, I'll show you the way out of this forest..."
+TREEHOUSE_FAIRY_HELP_LEAVE = "You leave the fairy. It gets mad.\nFAIRY: ...You want to help me so much, but now you want to leave? Not going to happen...\nWith a snap of her fingers, she deletes you.\n{GAME OVER}"
