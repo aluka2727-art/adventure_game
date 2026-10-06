@@ -16,6 +16,7 @@
     <div class="app">
       <header>
         <h1>Adventure</h1>
+        <span class="author">Lucas Zhuang</span>
       </header>
 
       {% if error %}
@@ -24,8 +25,25 @@
 
       <div class="terminal">
         <div class="log" id="game-log" aria-live="polite" aria-relevant="additions">
+          {% set pace = namespace(at=0, total=0) %}
           {% for entry in log %}
+          {% if loop.index0 >= animate_from and entry.kind == "line" %}
+          {% set pace.total = pace.total + (entry.text|length * 12) %}
+          {% endif %}
+          {% endfor %}
+          {% for entry in log %}
+          {% if loop.index0 >= animate_from and entry.kind == "line" %}
+          <div class="line {{ entry.kind }}">
+            {%- for char in entry.text -%}
+            <span class="typed" style="animation-delay: {{ pace.at }}ms">{{ char }}</span>
+            {%- set pace.at = pace.at + 12 -%}
+            {%- endfor -%}
+          </div>
+          {% elif loop.index0 >= animate_from and entry.kind == "prompt" and pace.total > 0 %}
+          <div class="line prompt pending" style="animation-delay: {{ pace.total + 100 }}ms">{{ entry.text }}</div>
+          {% else %}
           <div class="line {{ entry.kind }}">{{ entry.text }}</div>
+          {% endif %}
           {% endfor %}
         </div>
         <form class="input-row" method="post" action="{{ url_for('play') }}">
@@ -50,6 +68,9 @@
         <a class="button-link" href="{{ url_for('new_game') }}">New game</a>
       </div>
     </div>
+    {% if died %}
+    <div class="death-flash" aria-hidden="true"></div>
+    {% endif %}
     <script>
       (function () {
         var log = document.getElementById("game-log");
@@ -70,6 +91,12 @@
           scrollLogToBottom();
           focusInput();
         }
+
+        log.addEventListener("animationend", function (event) {
+          if (event.target.classList.contains("prompt")) {
+            scrollLogToBottom();
+          }
+        });
 
         afterPaint();
         requestAnimationFrame(afterPaint);

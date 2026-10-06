@@ -39,11 +39,16 @@ body {
 
 header {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
 }
 
-header h1 {
+header h1,
+header .author {
   font-size: 0.85rem;
   font-weight: 400;
   margin: 0;
@@ -91,12 +96,65 @@ header h1 {
   color: var(--prompt);
 }
 
+.log .line.prompt.pending {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  animation-name: reveal-prompt;
+  animation-duration: 1ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes reveal-prompt {
+  to {
+    opacity: 1;
+    max-height: 40rem;
+    margin-bottom: 0.65rem;
+  }
+}
+
 .log .line.game-over {
   color: var(--danger);
 }
 
 .log .line.input {
   color: var(--muted);
+}
+
+.log .typed {
+  opacity: 0;
+  animation-name: type-in;
+  animation-duration: 1ms;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes type-in {
+  to {
+    opacity: 1;
+  }
+}
+
+.death-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #ffffff;
+  pointer-events: none;
+  animation: death-fade 1.8s linear forwards;
+}
+
+@keyframes death-fade {
+  0%,
+  11.111% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 .input-row {

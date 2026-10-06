@@ -41,6 +41,8 @@ def index():
         log=log,
         state=result["state"],
         ended=result.get("ended", False),
+        died=bool(result["state"].get("ended")),
+        animate_from=0,
         error=None,
     )
 
@@ -59,11 +61,14 @@ def play():
 
         if state is None:
             result, log = _new_session()
+            animate_from = 0
         elif not command:
+            animate_from = len(log)
             result = process_turn(state, "")
             log = _append_result(log, result)
         else:
             log.append({"text": f"> {command}", "kind": "input"})
+            animate_from = len(log)
             result = process_turn(state, command)
             log = _append_result(log, result)
 
@@ -72,6 +77,8 @@ def play():
             log=log,
             state=result["state"],
             ended=result.get("ended", False),
+            died=bool(result["state"].get("ended")),
+            animate_from=animate_from,
             error=None,
         )
     except (json.JSONDecodeError, TypeError, KeyError) as exc:
@@ -81,6 +88,8 @@ def play():
             log=log,
             state=result["state"],
             ended=result.get("ended", False),
+            died=bool(result["state"].get("ended")),
+            animate_from=0,
             error=f"Something went wrong ({exc}). Started a new game.",
         )
 
