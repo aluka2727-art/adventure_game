@@ -156,3 +156,27 @@ TREEHOUSE_FAIRY_PROBLEM_LEAVE = "You leave the fairy. It gets mad.\nFAIRY: ...Yo
 TREEHOUSE_FAIRY_HELP_PROMPT = "Help the fairy or leave?(help/leave)"
 TREEHOUSE_FAIRY_HELP_HELP = "You help the fairy.\nFAIRY: ...Thank you! I'm so glad you're here! To thank you, I'll show you the way out of this forest..."
 TREEHOUSE_FAIRY_HELP_LEAVE = "You leave the fairy. It gets mad.\nFAIRY: ...You want to help me so much, but now you want to leave? Not going to happen...\nWith a snap of her fingers, she deletes you.\n{GAME OVER}"
+
+FAIRY_FOLLOW_PROMPT = "Follow the fairy or leave?(follow/leave)"
+FAIRY_FOLLOW_FOLLOW = "You follow the fairy.\nFAIRY: ...And another right turn..."
+FAIRYFOLLOW_AGAIN_PROMPT = "Keep following the fairy or leave?(follow/leave)"
+FAIRY_FOLLOW_FOLLOW_AGAIN = "You keep following the fairy.\nFAIRY: ...We're almost there..."
+FAIRY_FOLLOW_FOLLOW_AGAIN_AGAIN = "You keep following the fairy.\nThe fairy leads you to a small clearing in the forest.\nFAIRY: ...There's the door!...\nFAIRY: ...TO HELL...\nThe fairy turns into a demon and charges at you."
+FAIRY_FOLLOW_LEAVE = "You think the fairy is a bit suspicious, so you leave. \nFAIRY: ...Okay then, goodbye..."
+
+DEMON_BATTLE_PROMPT = "Fight the demon or run?(fight/run)"
+DEMON_BATTLE_FIGHT_SWORD = "You pull out the wooden sword from earlier and charge at the demon.\nThe demon pulls out his own sword and charges at you."
+DEMON_BATTLE_FIGHT_NO_SWORD = "You look around for a weapon, and you find a sturdy stick.\nYou charge at the demon with the stick.\nThe demon pulls out his own sword and charges at you."
+DEMON_BATTLE_RUN = "You turn and run away from the demon.\nThe demon chases you through the forest.\nYou hear the demon's laughter in the distance."
+
+DEMON_BATTLE_DEFEND_PROMPT = "Defend yourself or run?(defend/run)"
+DEMON_BATTLE_DEFEND_BLOCK = "You raise your weapon to defend yourself.\nThe demon swings his sword at you.\nYou block the sword with your weapon."
+DEMON_BATTLE_DEFEND_BLOCK_FAIL = "You raise your weapon to defend yourself.\nThe demon swings his sword at you.\nYou fail to block the sword and it breaks."
+
+DEMON_BATTLE_ATTACK_AGAIN_PROMPT = "Attack the demon back or run?(attack/run)"
+DEMON_BATTLE_ATTACK_AGAIN_SUCCES_WOODEN_SWORD = "You attack the demon back.\nThe demon becomes tired and starts to run away. With one swift swing, you cut the demon in half.\nThe demon disappears into a puff of smoke.\nThe demon's sword floats into your hand, merging with your wooden sword."
+DEMON_BATTLE_ATTACK_AGAIN_SUCCES_STICK = "You attack the demon back.\nThe demon becomes tired and starts to run away. With one swift swing, you cut the demon in half.\nThe demon disappears into a puff of smoke.\nThe demon's sword floats into your hand, replacing your stick."
+DEMON_BATTLE_ATTACK_AGAIN_DEATH = "You attack the demon back.\nThe demon is done playing around and charges at you.\nYou are now dead.\n{GAME OVER}"
+DEMON_BATTLE_ATTACK_AGAIN_WEAPONLESS = "You try to fight without a weapon, but the demon overpowers you!\n{GAME OVER}"
+
+FOREST_END_PROMPT = "Continue? (continue)"

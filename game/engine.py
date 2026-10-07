@@ -7,6 +7,9 @@ import sys
 
 from game import world
 
+WOODEN_STICK = "wooden stick"
+DEMON_SWORD = "demon sword"
+
 ROOM_ORDER = ["ready", "door", "dino", "ttt", "vend", "eat", "library", "boss1", "world2", "forest", "treehouse"]
 
 ROOM_CHEATS = {
@@ -584,14 +587,89 @@ def _handle_turn(state, answer, messages):
     if phase == "treehouse_help":
         if answer == "help":
             messages.append(world.TREEHOUSE_FAIRY_HELP_HELP)
-            ctx["phase"] = "treehouse_done"
-            return None
+            ctx["phase"] = "fairy_follow"
+            ctx["fairy_follows"] = 0
+            return world.FAIRY_FOLLOW_PROMPT
         if answer == "leave":
             messages.append(world.TREEHOUSE_FAIRY_HELP_LEAVE)
             state["ended"] = True
             return None
         messages.append(world.UNRECOGNIZED)
         return world.TREEHOUSE_FAIRY_HELP_PROMPT
+
+    if phase == "fairy_follow":
+        if answer == "follow":
+            return _follow_fairy(state, messages)
+        if answer == "leave":
+            messages.append(world.FAIRY_FOLLOW_LEAVE)
+            ctx["phase"] = "forest_end"
+            return world.FOREST_END_PROMPT
+        messages.append(world.UNRECOGNIZED)
+        return _prompt_for_state(state)
+
+    if phase == "demon_battle":
+        if answer == "fight":
+            if has_item(game, world.WOODEN_SWORD):
+                messages.append(world.DEMON_BATTLE_FIGHT_SWORD)
+            else:
+                messages.append(world.DEMON_BATTLE_FIGHT_NO_SWORD)
+                add_item(game, WOODEN_STICK)
+            ctx["phase"] = "demon_defend"
+            ctx["weapon_broken"] = False
+            return world.DEMON_BATTLE_DEFEND_PROMPT
+        if answer == "run":
+            return _flee_demon(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.DEMON_BATTLE_PROMPT
+
+    if phase == "demon_defend":
+        if answer == "defend":
+            if random.random() < 0.5:
+                messages.append(world.DEMON_BATTLE_DEFEND_BLOCK)
+                ctx["weapon_broken"] = False
+            else:
+                messages.append(world.DEMON_BATTLE_DEFEND_BLOCK_FAIL)
+                ctx["weapon_broken"] = True
+                remove_item(game, world.WOODEN_SWORD)
+                remove_item(game, WOODEN_STICK)
+            ctx["phase"] = "demon_attack"
+            return world.DEMON_BATTLE_ATTACK_AGAIN_PROMPT
+        if answer == "run":
+            return _flee_demon(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.DEMON_BATTLE_DEFEND_PROMPT
+
+    if phase == "demon_attack":
+        if answer == "attack":
+            if ctx.get("weapon_broken"):
+                messages.append(world.DEMON_BATTLE_ATTACK_AGAIN_DEATH)
+                state["ended"] = True
+                return None
+            if has_item(game, world.WOODEN_SWORD):
+                messages.append(world.DEMON_BATTLE_ATTACK_AGAIN_SUCCES_WOODEN_SWORD)
+                remove_item(game, world.WOODEN_SWORD)
+                add_item(game, DEMON_SWORD)
+                ctx["phase"] = "forest_end"
+                return world.FOREST_END_PROMPT
+            if has_item(game, WOODEN_STICK):
+                messages.append(world.DEMON_BATTLE_ATTACK_AGAIN_SUCCES_STICK)
+                remove_item(game, WOODEN_STICK)
+                add_item(game, DEMON_SWORD)
+                ctx["phase"] = "forest_end"
+                return world.FOREST_END_PROMPT
+            messages.append(world.DEMON_BATTLE_ATTACK_AGAIN_WEAPONLESS)
+            state["ended"] = True
+            return None
+        if answer == "run":
+            return _flee_demon(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.DEMON_BATTLE_ATTACK_AGAIN_PROMPT
+
+    if phase == "forest_end":
+        if answer == "continue":
+            return _finish_room(state, messages)
+        messages.append(world.UNRECOGNIZED)
+        return world.FOREST_END_PROMPT
 
     messages.append(world.UNRECOGNIZED)
     return _prompt_for_state(state)
@@ -626,8 +704,39 @@ def _prompt_for_state(state):
         "treehouse": world.TREEHOUSE_PROMPT,
         "treehouse_problem": world.TREEHOUSE_FAIRY_PROBLEM_PROMPT,
         "treehouse_help": world.TREEHOUSE_FAIRY_HELP_PROMPT,
+        "demon_battle": world.DEMON_BATTLE_PROMPT,
+        "demon_defend": world.DEMON_BATTLE_DEFEND_PROMPT,
+        "demon_attack": world.DEMON_BATTLE_ATTACK_AGAIN_PROMPT,
+        "forest_end": world.FOREST_END_PROMPT,
     }
+    if phase == "fairy_follow":
+        if state["ctx"].get("fairy_follows"):
+            return world.FAIRYFOLLOW_AGAIN_PROMPT
+        return world.FAIRY_FOLLOW_PROMPT
     return prompts.get(phase)
+
+
+def _follow_fairy(state, messages):
+    ctx = state["ctx"]
+    follows = ctx.get("fairy_follows", 0)
+    if follows == 0:
+        messages.append(world.FAIRY_FOLLOW_FOLLOW)
+        ctx["fairy_follows"] = 1
+        return world.FAIRYFOLLOW_AGAIN_PROMPT
+    if follows == 1:
+        messages.append(world.FAIRY_FOLLOW_FOLLOW_AGAIN)
+        ctx["fairy_follows"] = 2
+        return world.FAIRYFOLLOW_AGAIN_PROMPT
+    messages.append(world.FAIRY_FOLLOW_FOLLOW_AGAIN_AGAIN)
+    ctx["phase"] = "demon_battle"
+    ctx["weapon_broken"] = False
+    return world.DEMON_BATTLE_PROMPT
+
+
+def _flee_demon(state, messages):
+    messages.append(world.DEMON_BATTLE_RUN)
+    state["ctx"]["phase"] = "forest_end"
+    return world.FOREST_END_PROMPT
 
 
 def _continue_along_path(state, messages):
